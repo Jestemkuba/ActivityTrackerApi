@@ -45,12 +45,29 @@ namespace ActivityTrackerApi.Controllers
             return Ok(user);
         }
 
-
         [HttpPost]
-        public async Task<IActionResult> Create(RegisterUserDto user)
+        public async Task<IActionResult> CreateUser(RegisterUserDto user)
         {
             var userToRegister = _mapper.Map<ApplicationUser>(user);
             var result = await _userManager.CreateAsync(userToRegister, user.Password);
+            return Ok(userToRegister);
+        }
+
+        [HttpDelete("{id}")]        
+        public async Task<IActionResult> DeleteUser(int id)
+        {            
+            var user = await _userManager.FindByIdAsync(id.ToString());
+
+            if (user is null)
+            {
+                return NotFound();
+            }
+            var result = await _userManager.DeleteAsync(user);
+            
+            if (!result.Succeeded)
+            {
+                return BadRequest();
+            }
             return Ok(result);
         }
 
