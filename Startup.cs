@@ -1,5 +1,6 @@
 using ActivityTrackerApi.Data;
 using ActivityTrackerApi.Data.DTOs;
+using ActivityTrackerApi.Data.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -34,7 +35,7 @@ namespace ActivityTrackerApi
 
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("SqlConnection")));
 
-            services.AddIdentity<IdentityUser, IdentityRole>()
+            services.AddIdentity<ApplicationUser, IdentityRole<int>>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.Configure<IdentityOptions>(options =>
@@ -73,7 +74,7 @@ namespace ActivityTrackerApi
         {
             public FooProfile()
             {
-                CreateMap<RegisterUserDto, IdentityUser>();
+                CreateMap<RegisterUserDto, ApplicationUser>();
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿
 using ActivityTrackerApi.Data.DTOs;
+using ActivityTrackerApi.Data.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,31 +15,42 @@ using System.Threading.Tasks;
 namespace ActivityTrackerApi.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("/api/user")]
     public class UserController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
 
-        public UserController(UserManager<IdentityUser> userManager, IMapper mapper)
+        public UserController(UserManager<ApplicationUser> userManager, IMapper mapper)
         {
             _userManager = userManager;
             _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Users()
+        public async Task<IActionResult> GetUsers()
         {
             var users = await _userManager.Users.ToListAsync();
             return Ok(users);
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUser(int id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user is null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> Create(RegisterUserDto user)
         {
-            var userToRegister = _mapper.Map<IdentityUser>(user);
+            var userToRegister = _mapper.Map<ApplicationUser>(user);
             var result = await _userManager.CreateAsync(userToRegister, user.Password);
-
             return Ok(result);
         }
 
