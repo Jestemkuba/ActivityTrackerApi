@@ -51,6 +51,10 @@ namespace ActivityTrackerApi.Controllers
         {
             var userToRegister = _mapper.Map<ApplicationUser>(user);
             var result = await _userManager.CreateAsync(userToRegister, user.Password);
+            if (!result.Succeeded)
+            {
+                return BadRequest(result);
+            }
             return Ok(userToRegister);
         }
 
