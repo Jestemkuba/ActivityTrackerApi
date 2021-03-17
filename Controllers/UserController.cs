@@ -3,6 +3,7 @@ using ActivityTrackerApi.Data.DTOs;
 using ActivityTrackerApi.Data.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
@@ -69,6 +70,20 @@ namespace ActivityTrackerApi.Controllers
                 return BadRequest();
             }
             return Ok(result);
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> PatchUser([FromRoute]int id, [FromBody]JsonPatchDocument<ApplicationUser> patchEntity)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user is null)
+            {
+                return NotFound();
+            }
+
+            patchEntity.ApplyTo(user);
+            await _userManager.UpdateAsync(user);
+            return Ok(user);
         }
 
     }
