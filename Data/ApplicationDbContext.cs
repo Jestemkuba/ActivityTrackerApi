@@ -15,5 +15,7 @@ namespace ActivityTrackerApi.Data
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
         }
+
+        public DbSet<Activity> Activities { get; set; }
     }
 }
