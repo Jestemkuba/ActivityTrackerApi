@@ -1,4 +1,5 @@
 ﻿
+using ActivityTrackerApi.Data;
 using ActivityTrackerApi.Data.DTOs;
 using ActivityTrackerApi.Data.Models;
 using AutoMapper;
@@ -21,11 +22,13 @@ namespace ActivityTrackerApi.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
+        private readonly ApplicationDbContext _dbContext;
 
-        public UserController(UserManager<ApplicationUser> userManager, IMapper mapper)
+        public UserController(UserManager<ApplicationUser> userManager, IMapper mapper, ApplicationDbContext dbContext)
         {
             _userManager = userManager;
             _mapper = mapper;
+            _dbContext = dbContext;
         }
 
         [HttpGet]
@@ -89,6 +92,5 @@ namespace ActivityTrackerApi.Controllers
             await _userManager.UpdateAsync(user);
             return Ok(user);
         }
-
     }
 }
