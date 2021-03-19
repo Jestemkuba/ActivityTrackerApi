@@ -1,9 +1,11 @@
 ﻿using ActivityTrackerApi.Data;
 using ActivityTrackerApi.Data.DTOs.Activities;
 using ActivityTrackerApi.Data.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,9 +35,12 @@ namespace ActivityTrackerApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetUserActivities(int id)
+        public async Task<IActionResult> GetUserActivities(string id)
         {
-            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (!int.TryParse(id, out var intId))
+                return BadRequest("User ID must be integer number");
+
+            var user = await _userManager.FindByIdAsync(id);
             if (user is null)
             {
                 return NotFound("User not found");
@@ -52,6 +57,32 @@ namespace ActivityTrackerApi.Controllers
                 });
             }
             return Ok(result);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteAcitivity([FromBody]object jsonString)
+        {
+            var jsonObject = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonString.ToString());
+            var id = jsonObject["id"];
+
+            if (!int.TryParse(id, out var intId))
+                return BadRequest("User ID must be integer number");
+
+            try
+            {
+                var activity = _dbContext.Activities.Where(a => a.Id == intId).FirstOrDefault();
+                if (activity == null)
+                {
+                    return NotFound("Activity not found");
+                }
+                var result = _dbContext.Activities.Remove(activity);
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+            return Ok("Resource deleted");
         }
     }
 }
