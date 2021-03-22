@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace ActivityTrackerApi.Data.DTOs.Activities
+﻿namespace ActivityTrackerApi.Data.DTOs.Activities
 {
     public class ActivityDto
     {

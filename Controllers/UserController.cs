@@ -7,11 +7,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ActivityTrackerApi.Controllers
@@ -61,9 +56,9 @@ namespace ActivityTrackerApi.Controllers
             return Ok(userToRegister);
         }
 
-        [HttpDelete("{id}")]        
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
-        {            
+        {
             var user = await _userManager.FindByIdAsync(id.ToString());
 
             if (user is null)
@@ -71,7 +66,7 @@ namespace ActivityTrackerApi.Controllers
                 return NotFound();
             }
             var result = await _userManager.DeleteAsync(user);
-            
+
             if (!result.Succeeded)
             {
                 return BadRequest();
@@ -80,7 +75,7 @@ namespace ActivityTrackerApi.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> PatchUser([FromRoute]int id, [FromBody]JsonPatchDocument<ApplicationUser> patchEntity)
+        public async Task<IActionResult> PatchUser([FromRoute] int id, [FromBody] JsonPatchDocument<ApplicationUser> patchEntity)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
             if (user is null)
