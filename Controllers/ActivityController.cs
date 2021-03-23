@@ -27,7 +27,7 @@ namespace ActivityTrackerApi.Controllers
         [HttpPost]
         public async Task<IActionResult> AddActivity(Activity activity)
         {
-            await _repositoryWrapper.Activity.Create(activity);
+            _repositoryWrapper.Activity.Create(activity);
             await _repositoryWrapper.Save();
             return Ok(activity);
         }
