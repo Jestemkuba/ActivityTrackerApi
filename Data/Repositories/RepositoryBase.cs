@@ -17,30 +17,32 @@ namespace ActivityTrackerApi.Data.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task Create(T entity)
+        public void Create(T entity)
         {
-            await _dbContext.Set<T>().AddAsync(entity);
+            _dbContext.Set<T>().Add(entity);
+            var list = _dbContext.ChangeTracker.Entries();
+            FindAll();
+            var list2 = _dbContext.ChangeTracker.Entries();
+
         }
-        public Task Update(T entity)
+        public void Update(T entity)
         {
             _dbContext.Entry(entity).State = EntityState.Modified;
-            return Task.CompletedTask;
         }
 
-        public Task Delete(T entity)
+        public void Delete(T entity)
         {
             _dbContext.Set<T>().Remove(entity);
-            return Task.CompletedTask;
         }
 
         public Task<IQueryable<T>> FindAll()
         {
-            return Task.FromResult(_dbContext.Set<T>().AsNoTracking());
+            return Task.Run(() => (_dbContext.Set<T>().AsNoTracking()));
         }
 
         public Task<IQueryable<T>> FindByCondition(Expression<Func<T, bool>> expression)
         {
-            return Task.FromResult(_dbContext.Set<T>().Where(expression).AsNoTracking());
+            return Task.Run(() => (_dbContext.Set<T>().Where(expression).AsNoTracking()));
         }
 
 
