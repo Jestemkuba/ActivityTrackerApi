@@ -1,3 +1,4 @@
+using ActivityTrackerApi.Clients;
 using ActivityTrackerApi.Data;
 using ActivityTrackerApi.Data.DTOs;
 using ActivityTrackerApi.Data.Models;
@@ -42,6 +43,7 @@ namespace ActivityTrackerApi
 
             services.AddAutoMapper(typeof(Startup));
             services.ConfigureRepositoryWrapper();
+            services.ConfigureStravaClient();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
