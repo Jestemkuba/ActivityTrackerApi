@@ -3,6 +3,8 @@ using ActivityTrackerApi.Data;
 using ActivityTrackerApi.Data.DTOs.Activities;
 using ActivityTrackerApi.Data.Models;
 using ActivityTrackerApi.Data.Repositories.Contracts;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -28,6 +30,7 @@ namespace ActivityTrackerApi.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetUserActivities(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -67,8 +70,6 @@ namespace ActivityTrackerApi.Controllers
             await _repositoryWrapper.Save();
 
             return Ok("Resource deleted");
-        }
-
-        
+        }      
     }
 }
