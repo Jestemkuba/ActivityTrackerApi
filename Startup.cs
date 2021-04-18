@@ -4,6 +4,7 @@ using ActivityTrackerApi.Data.DTOs;
 using ActivityTrackerApi.Data.Models;
 using ActivityTrackerApi.Services;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -11,6 +12,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace ActivityTrackerApi
 {
@@ -41,6 +44,21 @@ namespace ActivityTrackerApi
                 options.Password.RequireUppercase = false;
             });
 
+            var key = Configuration["jwt-signing-key"];
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(o =>
+            {
+                o.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = "https://localhost:44301",
+                    ValidAudience = "https://localhost:44301",
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+                };
+            });
+
             services.AddAutoMapper(typeof(Startup));
             services.ConfigureRepositoryWrapper();
             services.ConfigureStravaClients();
@@ -56,9 +74,9 @@ namespace ActivityTrackerApi
 
             app.UseHttpsRedirection();
 
-            app.UseRouting();
 
             app.UseAuthentication();
+            app.UseRouting();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
