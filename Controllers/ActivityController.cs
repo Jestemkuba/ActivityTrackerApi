@@ -1,4 +1,5 @@
-﻿using ActivityTrackerApi.Data;
+﻿using ActivityTrackerApi.Clients;
+using ActivityTrackerApi.Data;
 using ActivityTrackerApi.Data.DTOs.Activities;
 using ActivityTrackerApi.Data.Models;
 using ActivityTrackerApi.Data.Repositories.Contracts;
@@ -17,11 +18,26 @@ namespace ActivityTrackerApi.Controllers
     {
         private readonly IRepositoryWrapper _repositoryWrapper;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IStravaClient _stravaClient;
 
-        public ActivityController(UserManager<ApplicationUser> userManager, IRepositoryWrapper repositoryWrapper)
+        public ActivityController(UserManager<ApplicationUser> userManager, IRepositoryWrapper repositoryWrapper, IStravaClient stravaClient)
         {
             _userManager = userManager;
             _repositoryWrapper = repositoryWrapper;
+            _stravaClient = stravaClient;
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserActivities(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user is null)
+            {
+                return NotFound();
+            }
+            var activities = await _repositoryWrapper.Activity.FindByCondition(a => a.User.Equals(user));
+            
+            return Ok(activities);
         }
 
         [HttpPost]
@@ -30,35 +46,7 @@ namespace ActivityTrackerApi.Controllers
             _repositoryWrapper.Activity.Create(activity);
             await _repositoryWrapper.Save();
             return Ok(activity);
-        }
-
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetUserActivities(string id)
-        {
-            if (!int.TryParse(id, out var intId))
-            {
-                return BadRequest("User ID must be integer number");
-            }
-
-            var user = await _userManager.FindByIdAsync(id);
-            if (user is null)
-            {
-                return NotFound();
-            }
-
-            var activities = await _repositoryWrapper.Activity.FindByCondition(a => a.User.Equals(user));
-            List<ActivityDto> result = new List<ActivityDto>();
-            foreach (var activity in activities)
-            {
-                result.Add(new ActivityDto()
-                {
-                    Id = activity.Id,
-                    Description = activity.Description
-                });
-            }
-            return Ok(result);
-        }
+        }  
 
         [HttpDelete]
         public async Task<IActionResult> DeleteAcitivity([FromBody] object jsonString)
@@ -80,5 +68,7 @@ namespace ActivityTrackerApi.Controllers
 
             return Ok("Resource deleted");
         }
+
+        
     }
 }
