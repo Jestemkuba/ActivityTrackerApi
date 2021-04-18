@@ -17,13 +17,11 @@ namespace ActivityTrackerApi.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
-        private readonly ApplicationDbContext _dbContext;
 
         public UserController(UserManager<ApplicationUser> userManager, IMapper mapper, ApplicationDbContext dbContext)
         {
             _userManager = userManager;
             _mapper = mapper;
-            _dbContext = dbContext;
         }
 
         [HttpGet]
