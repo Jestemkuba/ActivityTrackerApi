@@ -1,7 +1,10 @@
-﻿using ActivityTrackerApi.Data;
+﻿using ActivityTrackerApi.Clients;
+using ActivityTrackerApi.Data;
 using ActivityTrackerApi.Data.DTOs.Activities;
 using ActivityTrackerApi.Data.Models;
 using ActivityTrackerApi.Data.Repositories.Contracts;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -24,41 +27,27 @@ namespace ActivityTrackerApi.Controllers
             _repositoryWrapper = repositoryWrapper;
         }
 
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> GetUserActivities()
+        {
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            if (user is null)
+            {
+                return NotFound();
+            }
+            var activities = await _repositoryWrapper.Activity.FindByCondition(a => a.User.Equals(user));
+            
+            return Ok(activities);
+        }
+
         [HttpPost]
         public async Task<IActionResult> AddActivity(Activity activity)
         {
             _repositoryWrapper.Activity.Create(activity);
             await _repositoryWrapper.Save();
             return Ok(activity);
-        }
-
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetUserActivities(string id)
-        {
-            if (!int.TryParse(id, out var intId))
-            {
-                return BadRequest("User ID must be integer number");
-            }
-
-            var user = await _userManager.FindByIdAsync(id);
-            if (user is null)
-            {
-                return NotFound();
-            }
-
-            var activities = await _repositoryWrapper.Activity.FindByCondition(a => a.User.Equals(user));
-            List<ActivityDto> result = new List<ActivityDto>();
-            foreach (var activity in activities)
-            {
-                result.Add(new ActivityDto()
-                {
-                    Id = activity.Id,
-                    Description = activity.Description
-                });
-            }
-            return Ok(result);
-        }
+        }  
 
         [HttpDelete]
         public async Task<IActionResult> DeleteAcitivity([FromBody] object jsonString)
@@ -72,13 +61,13 @@ namespace ActivityTrackerApi.Controllers
             }
 
             var activity = _repositoryWrapper.Activity.FindByCondition(a => a.Id == intId).Result.FirstOrDefault();
-            if (activity == null)
+            if (activity is null)
             {
                 return NotFound("Activity not found");
             }
             await _repositoryWrapper.Save();
 
             return Ok("Resource deleted");
-        }
+        }      
     }
 }

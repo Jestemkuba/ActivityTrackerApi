@@ -17,13 +17,11 @@ namespace ActivityTrackerApi.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
-        private readonly ApplicationDbContext _dbContext;
 
         public UserController(UserManager<ApplicationUser> userManager, IMapper mapper, ApplicationDbContext dbContext)
         {
             _userManager = userManager;
             _mapper = mapper;
-            _dbContext = dbContext;
         }
 
         [HttpGet]
@@ -56,6 +54,20 @@ namespace ActivityTrackerApi.Controllers
             return Ok(userToRegister);
         }
 
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> PatchUser([FromRoute] int id, [FromBody] JsonPatchDocument<ApplicationUser> patchEntity)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user is null)
+            {
+                return NotFound();
+            }
+
+            patchEntity.ApplyTo(user);
+            await _userManager.UpdateAsync(user);
+            return Ok(user);
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
@@ -74,18 +86,6 @@ namespace ActivityTrackerApi.Controllers
             return Ok(result);
         }
 
-        [HttpPatch("{id}")]
-        public async Task<IActionResult> PatchUser([FromRoute] int id, [FromBody] JsonPatchDocument<ApplicationUser> patchEntity)
-        {
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user is null)
-            {
-                return NotFound();
-            }
-
-            patchEntity.ApplyTo(user);
-            await _userManager.UpdateAsync(user);
-            return Ok(user);
-        }
+        
     }
 }

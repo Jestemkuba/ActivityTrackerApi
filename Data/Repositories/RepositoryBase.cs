@@ -20,10 +20,6 @@ namespace ActivityTrackerApi.Data.Repositories
         public void Create(T entity)
         {
             _dbContext.Set<T>().Add(entity);
-            var list = _dbContext.ChangeTracker.Entries();
-            FindAll();
-            var list2 = _dbContext.ChangeTracker.Entries();
-
         }
         public void Update(T entity)
         {
@@ -37,12 +33,12 @@ namespace ActivityTrackerApi.Data.Repositories
 
         public Task<IQueryable<T>> FindAll()
         {
-            return Task.Run(() => (_dbContext.Set<T>().AsNoTracking()));
+            return Task.Run(() => _dbContext.Set<T>().AsNoTracking());
         }
 
         public Task<IQueryable<T>> FindByCondition(Expression<Func<T, bool>> expression)
         {
-            return Task.Run(() => (_dbContext.Set<T>().Where(expression).AsNoTracking()));
+            return Task.Run(() => _dbContext.Set<T>().Where(expression).AsNoTracking());
         }
 
 
