@@ -6,12 +6,14 @@ namespace ActivityTrackerApi.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+
             migrationBuilder.AddColumn<long>(
                 name: "Id",
                 table: "Activities",
                 type: "bigint",
                 nullable: false,
-                defaultValue: 0L);
+                defaultValue: 0L)
+                .Annotation("SqlServer:Identity", "1, 1");
 
             migrationBuilder.AddColumn<double>(
                 name: "AverageSpeed",
@@ -20,12 +22,12 @@ namespace ActivityTrackerApi.Migrations
                 nullable: false,
                 defaultValue: 0.0);
 
-            migrationBuilder.AddColumn<double>(
-                name: "UserId",
-                table: "Activities",
-                type: "int",
-                nullable: false,
-                defaultValue: 0);
+            migrationBuilder.AddColumn<int>(
+               name: "UserId",
+               table: "Activities",
+               type: "int",
+               nullable: false,
+               defaultValue: 0.0);
 
             migrationBuilder.AddColumn<double>(
                 name: "Distance",
@@ -60,6 +62,13 @@ namespace ActivityTrackerApi.Migrations
                 table: "Activities",
                 type: "nvarchar(max)",
                 nullable: true);
+
+            migrationBuilder.AddColumn<long>(
+                name: "StravaId",
+                table: "Activities",
+                type: "bigint",
+                nullable: false,
+                defaultValue: 0L);
 
             migrationBuilder.AddColumn<string>(
                 name: "Type",
@@ -126,6 +135,10 @@ namespace ActivityTrackerApi.Migrations
 
             migrationBuilder.DropColumn(
                 name: "Name",
+                table: "Activities");
+
+            migrationBuilder.DropColumn(
+                name: "StravaId",
                 table: "Activities");
 
             migrationBuilder.DropColumn(

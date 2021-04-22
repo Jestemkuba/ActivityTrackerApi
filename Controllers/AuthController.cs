@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -31,20 +32,30 @@ namespace ActivityTrackerApi.Controllers
         [Route("login")]
         public async Task<IActionResult> Login([FromBody]LoginRequestDto request)
         {
+            var tokenHandler = new JwtSecurityTokenHandler();
             var user = await _userManager.FindByNameAsync(request.Username);
             if (user != null && await _userManager.CheckPasswordAsync(user, request.Password))
             {
                 var key = _configuration["jwt-signing-key"];
                 var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
-                var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
-                var tokenOptions = new JwtSecurityToken(
-                    issuer: "https://localhost:44301",
-                    audience: "https://localhost:44301",                    
-                    expires: DateTime.Now.AddHours(24),
-                    signingCredentials: signinCredentials
-                );
 
-               return Ok(new JwtSecurityTokenHandler().WriteToken(tokenOptions));
+                var tokenDescriptor = new SecurityTokenDescriptor()
+                {
+                    Subject = new ClaimsIdentity(new[]
+                    {
+                        new Claim(ClaimTypes.Name, request.Username),
+                    }),
+                    Issuer = "https://localhost:44301",
+                    Audience = "https://localhost:44301",
+                    Expires = DateTime.Now.AddDays(1),
+                    SigningCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256),
+                };
+
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+
+                var jwtToken = tokenHandler.WriteToken(token);
+
+                return Ok(jwtToken);
             }
 
             return BadRequest();

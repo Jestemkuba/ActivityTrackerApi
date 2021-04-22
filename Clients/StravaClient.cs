@@ -1,4 +1,5 @@
-﻿using ActivityTrackerApi.Data.Models;
+﻿using ActivityTrackerApi.Data.DTOs.Activities;
+using ActivityTrackerApi.Data.Models;
 using RestSharp;
 using System;
 using System.Collections;
@@ -20,11 +21,11 @@ namespace ActivityTrackerApi.Clients
         }
         public IRestClient RestClient => _restClient;
 
-        public async Task<IEnumerable<Activity>> GetActivities(string token)
+        public async Task<IEnumerable<StravaActivityDto>> GetActivities(string token)
         {
             var request = new RestRequest("activities", DataFormat.Json);
             request.AddHeader("authorization", "Bearer " + token);
-            var activities = await RestClient.GetAsync<IEnumerable<Activity>>(request);
+            var activities = await RestClient.GetAsync<IEnumerable<StravaActivityDto>>(request);
 
             return activities;
 

@@ -44,6 +44,9 @@ namespace ActivityTrackerApi.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long>("StravaId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Type")
                         .HasColumnType("nvarchar(max)");
 

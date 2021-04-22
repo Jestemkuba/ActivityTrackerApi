@@ -20,20 +20,18 @@ namespace ActivityTrackerApi.Controllers
     {
         private readonly IRepositoryWrapper _repositoryWrapper;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IStravaClient _stravaClient;
 
-        public ActivityController(UserManager<ApplicationUser> userManager, IRepositoryWrapper repositoryWrapper, IStravaClient stravaClient)
+        public ActivityController(UserManager<ApplicationUser> userManager, IRepositoryWrapper repositoryWrapper)
         {
             _userManager = userManager;
             _repositoryWrapper = repositoryWrapper;
-            _stravaClient = stravaClient;
         }
 
-        [HttpGet("{id}")]
+        [HttpGet]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> GetUserActivities(string id)
+        public async Task<IActionResult> GetUserActivities()
         {
-            var user = await _userManager.FindByIdAsync(id);
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
             if (user is null)
             {
                 return NotFound();
@@ -63,7 +61,7 @@ namespace ActivityTrackerApi.Controllers
             }
 
             var activity = _repositoryWrapper.Activity.FindByCondition(a => a.Id == intId).Result.FirstOrDefault();
-            if (activity == null)
+            if (activity is null)
             {
                 return NotFound("Activity not found");
             }

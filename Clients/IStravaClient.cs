@@ -1,4 +1,5 @@
-﻿using ActivityTrackerApi.Data.Models;
+﻿using ActivityTrackerApi.Data.DTOs.Activities;
+using ActivityTrackerApi.Data.Models;
 using RestSharp;
 using System;
 using System.Collections;
@@ -11,6 +12,6 @@ namespace ActivityTrackerApi.Clients
     public interface IStravaClient
     {
         public IRestClient RestClient { get; }
-        public Task<IEnumerable<Activity>> GetActivities(string token);
+        public Task<IEnumerable<StravaActivityDto>> GetActivities(string token);
     }
 }

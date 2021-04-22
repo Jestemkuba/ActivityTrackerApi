@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ActivityTrackerApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210417223348_AddActivityTable")]
+    [Migration("20210421205041_AddActivityTable")]
     partial class AddActivityTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -45,6 +45,9 @@ namespace ActivityTrackerApi.Migrations
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("StravaId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Type")
                         .HasColumnType("nvarchar(max)");

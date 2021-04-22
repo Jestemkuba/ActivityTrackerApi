@@ -1,6 +1,7 @@
 using ActivityTrackerApi.Clients;
 using ActivityTrackerApi.Data;
 using ActivityTrackerApi.Data.DTOs;
+using ActivityTrackerApi.Data.DTOs.Activities;
 using ActivityTrackerApi.Data.Models;
 using ActivityTrackerApi.Services;
 using AutoMapper;
@@ -90,6 +91,9 @@ namespace ActivityTrackerApi
             public FooProfile()
             {
                 CreateMap<RegisterUserDto, ApplicationUser>();
+                CreateMap<StravaActivityDto, Activity>()
+                    .ForMember(activity => activity.StravaId, opt => opt.MapFrom(src => src.Id))
+                    .ForMember(activity => activity.Id, opt => opt.Ignore());
             }
         }
     }

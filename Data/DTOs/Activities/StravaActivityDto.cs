@@ -1,12 +1,13 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace ActivityTrackerApi.Data.Models
+namespace ActivityTrackerApi.Data.DTOs.Activities
 {
-    public class Activity
-    { 
-        public int Id { get; set; }
-        public long StravaId { get; set; }
-        public ApplicationUser User { get; set; }
+    public class StravaActivityDto
+    {
+        public long Id { get; set; }
         public string Name { get; set; }
         public double Distance { get; set; }
         public double MovingTime { get; set; }
