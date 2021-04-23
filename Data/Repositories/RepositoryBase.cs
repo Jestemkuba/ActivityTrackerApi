@@ -37,7 +37,7 @@ namespace ActivityTrackerApi.Data.Repositories
         }
 
         public Task<IQueryable<T>> FindByCondition(Expression<Func<T, bool>> expression)
-        {
+        {   
             return Task.Run(() => _dbContext.Set<T>().Where(expression).AsNoTracking());
         }
 
