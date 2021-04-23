@@ -28,7 +28,7 @@ namespace ActivityTrackerApi.Controllers
             _repositoryWrapper = repositoryWrapper;
         }
 
-        [HttpGet]   
+        [HttpGet]
         public async Task<IActionResult> GetUserActivities()
         {
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
@@ -37,7 +37,7 @@ namespace ActivityTrackerApi.Controllers
                 return NotFound();
             }
             var activities = await _repositoryWrapper.Activity.FindByCondition(a => a.User.Equals(user));
-            
+
             return Ok(activities);
         }
 
@@ -49,24 +49,22 @@ namespace ActivityTrackerApi.Controllers
             _repositoryWrapper.Activity.Create(activity);
             await _repositoryWrapper.Save();
             return Ok(activity);
-        }  
+        }
 
-        [HttpDelete]
-        public async Task<IActionResult> DeleteAcitivity([FromBody] object jsonString)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAcitivity(int id)
         {
-            var jsonObject = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonString.ToString());
-            var id = jsonObject["id"];
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            var activity = _repositoryWrapper.Activity.FindByCondition(a => a.Id == id && a.User.Id == user.Id)
+                                                        .Result
+                                                        .FirstOrDefault();
 
-            if (!int.TryParse(id, out var intId))
-            {
-                return BadRequest("User ID must be integer number");
-            }
-
-            var activity = _repositoryWrapper.Activity.FindByCondition(a => a.Id == intId).Result.FirstOrDefault();
             if (activity is null)
             {
                 return NotFound("Activity not found");
             }
+
+            _repositoryWrapper.Activity.Delete(activity);
             await _repositoryWrapper.Save();
 
             return Ok("Resource deleted");
