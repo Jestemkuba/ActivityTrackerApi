@@ -16,6 +16,7 @@ namespace ActivityTrackerApi.Controllers
 {
     [ApiController]
     [Route("/api/activities")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ActivityController : ControllerBase
     {
         private readonly IRepositoryWrapper _repositoryWrapper;
@@ -27,8 +28,7 @@ namespace ActivityTrackerApi.Controllers
             _repositoryWrapper = repositoryWrapper;
         }
 
-        [HttpGet]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpGet]   
         public async Task<IActionResult> GetUserActivities()
         {
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
@@ -44,6 +44,8 @@ namespace ActivityTrackerApi.Controllers
         [HttpPost]
         public async Task<IActionResult> AddActivity(Activity activity)
         {
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            activity.User = user;
             _repositoryWrapper.Activity.Create(activity);
             await _repositoryWrapper.Save();
             return Ok(activity);

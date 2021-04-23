@@ -3,6 +3,8 @@ using ActivityTrackerApi.Data;
 using ActivityTrackerApi.Data.DTOs;
 using ActivityTrackerApi.Data.Models;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +14,7 @@ using System.Threading.Tasks;
 namespace ActivityTrackerApi.Controllers
 {
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("/api/user")]
     public class UserController : ControllerBase
     {
@@ -31,10 +34,10 @@ namespace ActivityTrackerApi.Controllers
             return Ok(users);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetUser(int id)
+        [HttpGet]
+        public async Task<IActionResult> GetUser()
         {
-            var user = await _userManager.FindByIdAsync(id.ToString());
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
             if (user is null)
             {
                 return NotFound();
@@ -43,6 +46,7 @@ namespace ActivityTrackerApi.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> CreateUser(RegisterUserDto user)
         {
             var userToRegister = _mapper.Map<ApplicationUser>(user);
@@ -55,9 +59,9 @@ namespace ActivityTrackerApi.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> PatchUser([FromRoute] int id, [FromBody] JsonPatchDocument<ApplicationUser> patchEntity)
+        public async Task<IActionResult> PatchUser([FromBody] JsonPatchDocument<ApplicationUser> patchEntity)
         {
-            var user = await _userManager.FindByIdAsync(id.ToString());
+            var user = await _userManager.FindByIdAsync(User.Identity.Name);
             if (user is null)
             {
                 return NotFound();
@@ -69,9 +73,9 @@ namespace ActivityTrackerApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        public async Task<IActionResult> DeleteUser()
         {
-            var user = await _userManager.FindByIdAsync(id.ToString());
+            var user = await _userManager.FindByIdAsync(User.Identity.Name);
 
             if (user is null)
             {
