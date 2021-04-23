@@ -2,6 +2,7 @@
 using ActivityTrackerApi.Data;
 using ActivityTrackerApi.Data.DTOs;
 using ActivityTrackerApi.Data.Models;
+using ActivityTrackerApi.Data.Repositories.Contracts;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -20,14 +21,17 @@ namespace ActivityTrackerApi.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
+        private readonly IRepositoryWrapper _repositoryWrapper;
 
-        public UserController(UserManager<ApplicationUser> userManager, IMapper mapper, ApplicationDbContext dbContext)
+        public UserController(UserManager<ApplicationUser> userManager, IMapper mapper, ApplicationDbContext dbContext, IRepositoryWrapper repositoryWrapper)
         {
             _userManager = userManager;
             _mapper = mapper;
+            _repositoryWrapper = repositoryWrapper;
         }
 
         [HttpGet]
+        [Route("/api/users")]
         public async Task<IActionResult> GetUsers()
         {
             var users = await _userManager.Users.ToListAsync();
@@ -72,15 +76,21 @@ namespace ActivityTrackerApi.Controllers
             return Ok(user);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete]
         public async Task<IActionResult> DeleteUser()
         {
-            var user = await _userManager.FindByIdAsync(User.Identity.Name);
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
 
             if (user is null)
             {
                 return NotFound();
             }
+
+            var activites = await _repositoryWrapper.Activity.FindByCondition(a => a.User.Id == user.Id);
+            foreach (var activity in activites)
+            {
+                _repositoryWrapper.Activity.Delete(activity);
+            };
             var result = await _userManager.DeleteAsync(user);
 
             if (!result.Succeeded)
