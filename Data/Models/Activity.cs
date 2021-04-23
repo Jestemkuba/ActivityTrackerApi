@@ -1,11 +1,14 @@
 ﻿
 
+using Newtonsoft.Json;
+
 namespace ActivityTrackerApi.Data.Models
 {
     public class Activity
     { 
         public int Id { get; set; }
         public long StravaId { get; set; }
+        [JsonIgnore]
         public ApplicationUser User { get; set; }
         public string Name { get; set; }
         public double Distance { get; set; }
