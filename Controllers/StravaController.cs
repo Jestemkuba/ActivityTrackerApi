@@ -2,6 +2,8 @@
 using ActivityTrackerApi.Data.Models;
 using ActivityTrackerApi.Data.Repositories.Contracts;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -13,6 +15,7 @@ namespace ActivityTrackerApi.Controllers
 {
     [ApiController]
     [Route("api/strava")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class StravaController : ControllerBase
     {
         private readonly IStravaClient _stravaClient;
@@ -30,9 +33,9 @@ namespace ActivityTrackerApi.Controllers
 
         [HttpPost]
         [Route("SyncStravaActivities")]
-        public async Task<IActionResult> SynchroniseActivitiesWithStrava([FromHeader] string stravaAuthToken, [FromHeader] string username)
+        public async Task<IActionResult> SynchroniseActivitiesWithStrava([FromHeader] string stravaAuthToken)
         {
-            var user = await _userManager.FindByNameAsync(username);
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
             var stravaActivities = await _stravaClient.GetActivities(stravaAuthToken);
             var activities = await _repositoryWrapper.Activity.FindByCondition(a => a.User.UserName == user.UserName);
             foreach (var stravaActivity in stravaActivities)
