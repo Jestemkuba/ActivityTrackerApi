@@ -98,8 +98,6 @@ namespace ActivityTrackerApi.Controllers
                 return BadRequest();
             }
             return Ok(result);
-        }
-
-        
+        }       
     }
 }

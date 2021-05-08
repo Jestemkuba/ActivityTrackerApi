@@ -25,9 +25,13 @@ namespace ActivityTrackerApi.Clients
         {
             var request = new RestRequest("activities", DataFormat.Json);
             request.AddHeader("authorization", "Bearer " + token);
-            var activities = await RestClient.GetAsync<IEnumerable<StravaActivityDto>>(request);
+            //var activities = await RestClient.GetAsync<IEnumerable<StravaActivityDto>>(request);
 
-            return activities;
+            var response = await RestClient.ExecuteAsync<IEnumerable<StravaActivityDto>>(request);
+            if (!response.IsSuccessful)
+                throw new Exception("TEST");
+
+            return response.Data;
 
         }
     }

@@ -1,4 +1,5 @@
 ﻿using ActivityTrackerApi.Clients;
+using ActivityTrackerApi.Data.DTOs.Activities;
 using ActivityTrackerApi.Data.Models;
 using ActivityTrackerApi.Data.Repositories.Contracts;
 using AutoMapper;
@@ -35,20 +36,27 @@ namespace ActivityTrackerApi.Controllers
         [Route("SyncStravaActivities")]
         public async Task<IActionResult> SynchroniseActivitiesWithStrava([FromHeader] string stravaAuthToken)
         {
-            var user = await _userManager.FindByNameAsync(User.Identity.Name);
-            var stravaActivities = await _stravaClient.GetActivities(stravaAuthToken);
-            var activities = await _repositoryWrapper.Activity.FindByCondition(a => a.User.UserName == user.UserName);
-            foreach (var stravaActivity in stravaActivities)
+            try
             {
-                if (!activities.Any(a => a.StravaId == stravaActivity.Id))
+                var user = await _userManager.FindByNameAsync(User.Identity.Name);
+                var stravaActivities = await _stravaClient.GetActivities(stravaAuthToken);
+                var activities = await _repositoryWrapper.Activity.FindByCondition(a => a.User.UserName == user.UserName);
+                foreach (var stravaActivity in stravaActivities)
                 {
-                    var activity = _mapper.Map<Activity>(stravaActivity);
-                    activity.User = user;
-                    _repositoryWrapper.Activity.Create(activity);
+                    if (!activities.Any(a => a.StravaId == stravaActivity.Id))
+                    {
+                        var activity = _mapper.Map<Activity>(stravaActivity);
+                        activity.User = user;
+                        _repositoryWrapper.Activity.Create(activity);
+                    }
                 }
+                await _repositoryWrapper.Save();
+                return Ok("Updated");
             }
-            await _repositoryWrapper.Save();
-            return Ok("Updated");
+            catch (Exception ex)
+            {
+                return BadRequest("Strava auth token invalid");
+            }
         }
     }
 }
