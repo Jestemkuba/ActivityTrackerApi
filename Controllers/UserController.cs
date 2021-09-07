@@ -3,7 +3,7 @@ using ActivityTrackerApi.Data;
 using ActivityTrackerApi.Data.DTOs;
 using ActivityTrackerApi.Data.Models;
 using ActivityTrackerApi.Data.Repositories.Contracts;
-using AutoMapper;
+using ActivityTrackerApi.MappingExtensions.DTO;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -20,13 +20,11 @@ namespace ActivityTrackerApi.Controllers
     public class UserController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IMapper _mapper;
         private readonly IRepositoryWrapper _repositoryWrapper;
 
-        public UserController(UserManager<ApplicationUser> userManager, IMapper mapper, ApplicationDbContext dbContext, IRepositoryWrapper repositoryWrapper)
+        public UserController(UserManager<ApplicationUser> userManager, IRepositoryWrapper repositoryWrapper)
         {
             _userManager = userManager;
-            _mapper = mapper;
             _repositoryWrapper = repositoryWrapper;
         }
 
@@ -53,7 +51,7 @@ namespace ActivityTrackerApi.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> CreateUser(RegisterUserDto user)
         {
-            var userToRegister = _mapper.Map<ApplicationUser>(user);
+            var userToRegister = user.ToApplicationUser();
             var result = await _userManager.CreateAsync(userToRegister, user.Password);
             if (!result.Succeeded)
             {

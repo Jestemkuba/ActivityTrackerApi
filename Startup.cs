@@ -4,7 +4,6 @@ using ActivityTrackerApi.Data.DTOs;
 using ActivityTrackerApi.Data.DTOs.Activities;
 using ActivityTrackerApi.Data.Models;
 using ActivityTrackerApi.Services;
-using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -60,7 +59,6 @@ namespace ActivityTrackerApi
                 };
             });
 
-            services.AddAutoMapper(typeof(Startup));
             services.ConfigureRepositoryWrapper();
             services.ConfigureStravaClients();
             services.AddApplicationInsightsTelemetry(Configuration["APPINSIGHTS_CONNECTIONSTRING"]);
@@ -85,17 +83,6 @@ namespace ActivityTrackerApi
             {
                 endpoints.MapControllers();
             });
-        }
-
-        internal class FooProfile : Profile
-        {
-            public FooProfile()
-            {
-                CreateMap<RegisterUserDto, ApplicationUser>();
-                CreateMap<StravaActivityDto, Activity>()
-                    .ForMember(activity => activity.StravaId, opt => opt.MapFrom(src => src.Id))
-                    .ForMember(activity => activity.Id, opt => opt.Ignore());
-            }
         }
     }
 }
