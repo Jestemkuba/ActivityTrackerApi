@@ -2,13 +2,12 @@
 using ActivityTrackerApi.Data.DTOs.Activities;
 using ActivityTrackerApi.Data.Models;
 using ActivityTrackerApi.Data.Repositories.Contracts;
-using AutoMapper;
+using ActivityTrackerApi.MappingExtensions.DTO;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -22,14 +21,12 @@ namespace ActivityTrackerApi.Controllers
         private readonly IStravaClient _stravaClient;
         private readonly IRepositoryWrapper _repositoryWrapper;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IMapper _mapper;
 
-        public StravaController(IStravaClient stravaClient, IRepositoryWrapper repositoryWrapper, UserManager<ApplicationUser> userManager, IMapper mapper)
+        public StravaController(IStravaClient stravaClient, IRepositoryWrapper repositoryWrapper, UserManager<ApplicationUser> userManager)
         {
             _stravaClient = stravaClient;
             _repositoryWrapper = repositoryWrapper;
             _userManager = userManager;
-            _mapper = mapper;
         }
 
         [HttpPost]
@@ -45,7 +42,7 @@ namespace ActivityTrackerApi.Controllers
                 {
                     if (!activities.Any(a => a.StravaId == stravaActivity.Id))
                     {
-                        var activity = _mapper.Map<Activity>(stravaActivity);
+                        var activity = stravaActivity.ToActivity();
                         activity.User = user;
                         _repositoryWrapper.Activity.Create(activity);
                     }
